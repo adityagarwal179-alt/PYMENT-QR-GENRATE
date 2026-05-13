@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart UPI Pay</title>
+    <!-- Modern QR Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root { --primary: #1a73e8; --bg: #f8f9fa; --card-bg: #ffffff; }
+        body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        
+        .payment-card { background: var(--card-bg); width: 95%; max-width: 400px; padding: 28px; border-radius: 24px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); text-align: center; }
+        h2 { font-size: 20px; font-weight: 700; color: #1d1d1f; margin-bottom: 24px; }
+        
+        .input-box { text-align: left; margin-bottom: 16px; }
+        label { font-size: 12px; font-weight: 600; color: #86868b; text-transform: uppercase; margin-left: 4px; }
+        input { width: 100%; padding: 14px; margin-top: 6px; border: 1.5px solid #e5e5e5; border-radius: 12px; font-size: 16px; transition: 0.2s; box-sizing: border-box; }
+        input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.1); }
+        
+        .main-btn { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 14px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 8px; }
+        
+        #outputArea { display: none; margin-top: 24px; padding-top: 24px; border-top: 1px solid #f0f0f0; }
+        #qrcode { background: white; padding: 12px; display: inline-block; border-radius: 16px; border: 1px solid #eee; margin-bottom: 20px; }
+        
+        .app-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
+        .app-btn { display: flex; align-items: center; justify-content: center; padding: 12px; border-radius: 10px; text-decoration: none; color: white; font-weight: 600; font-size: 13px; }
+        
+        .gpay { background: #4285F4; }
+        .phonepe { background: #5f259f; }
+        .paytm { background: #00baf2; }
+        .other { background: #28a745; }
+        
+        .copy-btn { width: 100%; padding: 12px; background: #f2f2f7; color: #1d1d1f; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; margin-top: 5px; }
+        #toast { position: fixed; bottom: 20px; background: #333; color: #fff; padding: 10px 20px; border-radius: 30px; font-size: 13px; display: none; z-index: 100; }
+    </style>
+</head>
+<body>
+
+<div class="payment-card">
+    <h2>Generate Payment</h2>
+    
+    <div class="input-box">
+        <label>Payee Name</label>
+        <input type="text" id="name" placeholder="Full Name">
+    </div>
+    
+    <div class="input-box">
+        <label>UPI ID (VPA)</label>
+        <input type="text" id="upi" placeholder="example@upi">
+    </div>
+    
+    <div class="input-box">
+        <label>Amount (₹)</label>
+        <input type="number" id="amt" placeholder="0.00">
+    </div>
+
+    <button class="main-btn" onclick="generate()">Create QR & App Links</button>
+
+    <div id="outputArea">
+        <div id="qrcode"></div>
+        <p style="font-size: 12px; color: #86868b; margin-bottom: 12px;">Choose your UPI app to pay:</p>
+        
+        <div class="app-grid">
+            <a id="linkGPay" href="#" class="app-btn gpay">Google Pay</a>
+            <a id="linkPhonePe" href="#" class="app-btn phonepe">PhonePe</a>
+            <a id="linkPaytm" href="#" class="app-btn paytm">Paytm</a>
+            <a id="linkAll" href="#" class="app-btn other">Other Apps</a>
+        </div>
+        
+        <button class="copy-btn" onclick="copyLink()">Copy Payment Link</button>
+    </div>
+</div>
+
+<div id="toast">Link Copied!</div>
+<textarea id="tempBox" style="position:fixed;top:-999px"></textarea>
+
+<script>
+    let qrcode = new QRCode(document.getElementById("qrcode"), { width: 160, height: 160, correctLevel: QRCode.CorrectLevel.H });
+    let globalUri = "";
+
+    function generate() {
+        const name = document.getElementById('name').value.trim();
+        const upi = document.getElementById('upi').value.trim();
+        const amt = document.getElementById('amt').value.trim();
+
+        if (!name || !upi || !amt) { alert("Please enter Name, UPI ID, and Amount."); return; }
+
+        // Secure 2026 URI Parameters
+        const txnId = "T" + Date.now() + Math.floor(Math.random() * 1000);
+        const params = `pa=${upi}&pn=${encodeURIComponent(name)}&am=${amt}&cu=INR&tr=${txnId}&mode=02&orgid=000000`;
+        
+        globalUri = `upi://pay?${params}`;
+
+        // Update App-Specific Intent Links
+        document.getElementById('linkGPay').href = `tez://upi/pay?${params}`;
+        document.getElementById('linkPhonePe').href = `phonepe://pay?${params}`;
+        document.getElementById('linkPaytm').href = `paytmmp://pay?${params}`;
+        document.getElementById('linkAll').href = globalUri;
+
+        // Render QR
+        qrcode.clear();
+        qrcode.makeCode(globalUri);
+        document.getElementById('outputArea').style.display = 'block';
+    }
+
+    function copyLink() {
+        if (!globalUri) return;
+        
+        // Modern Clipboard API
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(globalUri).then(() => showToast());
+        } else {
+            // Reliable 2026 Fallback
+            const t = document.getElementById("tempBox");
+            t.value = globalUri;
+            t.select();
+            document.execCommand('copy');
+            showToast();
+        }
+    }
+
+    function showToast() {
+        const toast = document.getElementById("toast");
+        toast.style.display = "block";
+        setTimeout(() => toast.style.display = "none", 2500);
+    }
+</script>
+
+</body>
+</html>
