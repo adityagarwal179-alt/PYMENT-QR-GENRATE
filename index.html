@@ -186,7 +186,6 @@
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
         }
 
-        /* Timer Badge on QR */
         .timer-badge {
             position: absolute;
             bottom: -10px;
@@ -286,7 +285,6 @@
                         0 2px 5px rgba(5, 150, 105, 0.3);
         }
 
-        /* Success State View inside card */
         .success-state {
             display: none;
             text-align: center;
@@ -313,7 +311,6 @@
             font-size: 32px;
         }
 
-        /* History Modal Section */
         .history-section {
             display: none;
             text-align: left;
@@ -364,21 +361,19 @@
 <body>
 
 <div class="payment-card" id="mainCard">
-    <div class="top-bar">
+    <div class="top-bar" id="topBar">
         <div class="secure-badge">🔒 100% Secure</div>
-        <button class="history-trigger-btn" onclick="toggleHistory()" id="historyToggleBtn">📜 Transactions</button>
+        <button class="history-trigger-btn" onclick="toggleHistory()">📜 Transactions</button>
     </div>
 
-    <div class="brand-header">
+    <div class="brand-header" id="brandHeader">
         <h2>Smart UPI Pay Pro</h2>
     </div>
     
     <!-- Transaction History View -->
     <div id="historySection" class="history-section">
         <h3 style="font-size: 15px; margin-bottom: 10px;">Recent Payments</h3>
-        <div class="history-list" id="historyListContainer">
-            <p style="text-align: center; color: var(--text-muted); font-size: 13px; padding: 20px;">No transactions recorded yet.</p>
-        </div>
+        <div class="history-list" id="historyListContainer"></div>
         <button class="copy-btn" onclick="toggleHistory()">Back to Payment</button>
     </div>
 
@@ -399,13 +394,12 @@
             <input type="number" id="amt" placeholder="0.00" step="0.01" value="10">
         </div>
 
-        <!-- Quick Amount Presets Feature -->
         <div class="preset-container">
-            <div class="preset-chip" onclick="setPreset(50)">₹50</div>
-            <div class="preset-chip" onclick="setPreset(100)">₹100</div>
-            <div class="preset-chip" onclick="setPreset(500)">₹500</div>
-            <div class="preset-chip" onclick="setPreset(1000)">₹1,000</div>
-            <div class="preset-chip" onclick="setPreset(5000)">₹5,000</div>
+            <div class="preset-chip" onclick="setPreset(50, this)">₹50</div>
+            <div class="preset-chip" onclick="setPreset(100, this)">₹100</div>
+            <div class="preset-chip" onclick="setPreset(500, this)">₹500</div>
+            <div class="preset-chip" onclick="setPreset(1000, this)">₹1,000</div>
+            <div class="preset-chip" onclick="setPreset(5000, this)">₹5,000</div>
         </div>
 
         <button class="main-btn" onclick="generate()">Generate Dynamic QR</button>
@@ -456,11 +450,10 @@
         generate();
     };
 
-    function setPreset(val) {
+    function setPreset(val, element) {
         document.getElementById('amt').value = val;
-        // Highlight active preset chip
         document.querySelectorAll('.preset-chip').forEach(c => c.classList.remove('active'));
-        event.target.classList.add('active');
+        element.classList.add('active');
         generate();
     }
 
@@ -488,7 +481,7 @@
         qrcode.makeCode(globalUri);
         
         document.getElementById('outputArea').style.display = 'block';
-        startCountdown(600); // 10 minute expiry countdown timer
+        startCountdown(600);
     }
 
     function startCountdown(duration) {
@@ -516,11 +509,10 @@
         const amtVal = document.getElementById('amt').value;
         const nameVal = document.getElementById('name').value;
         
-        // Save to local storage transaction history feature
         const newRecord = {
             name: nameVal,
             amount: amtVal,
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', dateStyle: 'short' })
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ", " + new Date().toLocaleDateString()
         };
         transactionHistory.unshift(newRecord);
         localStorage.setItem('upi_txns', JSON.stringify(transactionHistory));
@@ -528,11 +520,12 @@
         document.getElementById('successDesc').innerText = `Successfully received ₹${amtVal} from payment request for ${nameVal}.`;
         
         if (countdownTimer) clearInterval(countdownTimer);
+        
+        // Properly hide/show card elements
         document.getElementById('formSection').style.display = 'none';
         document.getElementById('outputArea').style.display = 'none';
-        document.querySelector('.top-bar').style.display = 'none';
-        document.querySelector('.brand-header').style.display = 'none';
-        
+        document.getElementById('topBar').style.display = 'none';
+        document.getElementById('brandHeader').style.display = 'none';
         document.getElementById('successState').style.display = 'block';
     }
 
@@ -540,7 +533,7 @@
         const historySec = document.getElementById('historySection');
         const formSec = document.getElementById('formSection');
         const outputSec = document.getElementById('outputArea');
-        const brandHead = document.querySelector('.brand-header');
+        const brandHead = document.getElementById('brandHeader');
         
         if (historySec.style.display === 'block') {
             historySec.style.display = 'none';
@@ -582,8 +575,8 @@
         if (countdownTimer) clearInterval(countdownTimer);
         document.getElementById('successState').style.display = 'none';
         document.getElementById('formSection').style.display = 'block';
-        document.querySelector('.top-bar').style.display = 'flex';
-        document.querySelector('.brand-header').style.display = 'block';
+        document.getElementById('topBar').style.display = 'flex';
+        document.getElementById('brandHeader').style.display = 'block';
         document.getElementById('outputArea').style.display = 'none';
     }
 
