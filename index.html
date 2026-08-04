@@ -4,63 +4,237 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="keywords" content="payment QR code generator, UPI payment gateway, collect payments online, generate payment QR, mobile payment, secure transaction, fast checkout, scan to pay, digital wallet, dynamic QR code">
-    <title>Smart UPI Pay</title>
+    <title>Smart UPI Pay | Secure Payment Gateway</title>
     <!-- Modern QR Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #1a73e8; --bg: #f8f9fa; --card-bg: #ffffff; }
-        body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        :root { 
+            --primary: #2563eb; 
+            --primary-hover: #1d4ed8;
+            --bg: #f8fafc; 
+            --card-bg: #ffffff; 
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #cbd5e1;
+        }
+
+        * { box-sizing: border-box; }
+
+        body { 
+            font-family: 'Inter', -apple-system, sans-serif; 
+            background: var(--bg); 
+            color: var(--text-main);
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
+        }
         
-        .payment-card { background: var(--card-bg); width: 95%; max-width: 400px; padding: 28px; border-radius: 24px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); text-align: center; }
-        h2 { font-size: 20px; font-weight: 700; color: #1d1d1f; margin-bottom: 24px; }
+        .payment-card { 
+            background: var(--card-bg); 
+            width: 95%; 
+            max-width: 420px; 
+            padding: 32px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05); 
+            border: 1px solid #e2e8f0;
+            text-align: center; 
+        }
+
+        .brand-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .brand-header h2 { 
+            font-size: 20px; 
+            font-weight: 700; 
+            color: var(--text-main); 
+            margin: 0; 
+        }
+
+        .secure-badge {
+            font-size: 11px;
+            background: #dcfce7;
+            color: #166534;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 20px;
+        }
         
-        .input-box { text-align: left; margin-bottom: 16px; }
-        label { font-size: 12px; font-weight: 600; color: #86868b; text-transform: uppercase; margin-left: 4px; }
-        input { width: 100%; padding: 14px; margin-top: 6px; border: 1.5px solid #e5e5e5; border-radius: 12px; font-size: 16px; transition: 0.2s; box-sizing: border-box; }
-        input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.1); }
+        .input-box { 
+            text-align: left; 
+            margin-bottom: 18px; 
+        }
+
+        label { 
+            font-size: 11px; 
+            font-weight: 600; 
+            color: var(--text-muted); 
+            text-transform: uppercase; 
+            letter-spacing: 0.05em;
+            margin-left: 2px; 
+        }
+
+        input { 
+            width: 100%; 
+            padding: 12px 16px; 
+            margin-top: 6px; 
+            border: 1.5px solid var(--border); 
+            border-radius: 10px; 
+            font-size: 15px; 
+            color: var(--text-main);
+            transition: all 0.2s ease; 
+        }
+
+        input:focus { 
+            border-color: var(--primary); 
+            outline: none; 
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); 
+        }
         
-        .main-btn { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 14px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 8px; }
+        .main-btn { 
+            width: 100%; 
+            padding: 14px; 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            border-radius: 10px; 
+            font-size: 15px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            margin-top: 8px; 
+            transition: background 0.2s;
+        }
+
+        .main-btn:hover {
+            background: var(--primary-hover);
+        }
         
-        #outputArea { display: none; margin-top: 24px; padding-top: 24px; border-top: 1px solid #f0f0f0; }
-        #qrcode { background: white; padding: 12px; display: inline-block; border-radius: 16px; border: 1px solid #eee; margin-bottom: 20px; }
+        #outputArea { 
+            display: none; 
+            margin-top: 24px; 
+            padding-top: 24px; 
+            border-top: 1px solid #e2e8f0; 
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #qrcode { 
+            background: white; 
+            padding: 16px; 
+            display: inline-block; 
+            border-radius: 12px; 
+            border: 1px solid #e2e8f0; 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+            margin-bottom: 16px; 
+        }
         
-        .app-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
-        .app-btn { display: flex; align-items: center; justify-content: center; padding: 12px; border-radius: 10px; text-decoration: none; color: white; font-weight: 600; font-size: 13px; }
+        .app-grid { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 10px; 
+            margin-bottom: 12px; 
+        }
+
+        .app-btn { 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 10px; 
+            border-radius: 8px; 
+            text-decoration: none; 
+            color: white; 
+            font-weight: 600; 
+            font-size: 13px; 
+            transition: opacity 0.2s;
+        }
+
+        .app-btn:hover { opacity: 0.9; }
         
-        .gpay { background: #4285F4; }
+        .gpay { background: #1a73e8; }
         .phonepe { background: #5f259f; }
         .paytm { background: #00baf2; }
-        .other { background: #28a745; }
+        .other { background: #059669; }
         
-        .copy-btn { width: 100%; padding: 12px; background: #f2f2f7; color: #1d1d1f; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; margin-top: 5px; }
-        #toast { position: fixed; bottom: 20px; background: #333; color: #fff; padding: 10px 20px; border-radius: 30px; font-size: 13px; display: none; z-index: 100; }
+        .copy-btn { 
+            width: 100%; 
+            padding: 12px; 
+            background: #f1f5f9; 
+            color: var(--text-main); 
+            border: 1px solid #cbd5e1; 
+            border-radius: 8px; 
+            font-weight: 600; 
+            font-size: 14px;
+            cursor: pointer; 
+            transition: background 0.2s;
+        }
+
+        .copy-btn:hover { background: #e2e8f0; }
+
+        #toast { 
+            position: fixed; 
+            bottom: 24px; 
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #0f172a; 
+            color: #fff; 
+            padding: 10px 20px; 
+            border-radius: 30px; 
+            font-size: 13px; 
+            font-weight: 500;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 100; 
+        }
+
+        #toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
     </style>
 </head>
 <body>
 
 <div class="payment-card">
-    <h2>Generate Payment</h2>
+    <div class="secure-badge">🔒 100% Secure UPI Encryption</div>
+    <div class="brand-header">
+        <h2>Smart UPI Pay</h2>
+    </div>
     
     <div class="input-box">
         <label>Payee Name</label>
-        <input type="text" id="name" placeholder="Full Name">
+        <input type="text" id="name" placeholder="e.g. John Doe">
     </div>
     
     <div class="input-box">
         <label>UPI ID (VPA)</label>
-        <input type="text" id="upi" placeholder="example@upi">
+        <input type="text" id="upi" placeholder="e.g. username@oksbi">
     </div>
     
     <div class="input-box">
         <label>Amount (₹)</label>
-        <input type="number" id="amt" placeholder="0.00">
+        <input type="number" id="amt" placeholder="0.00" step="0.01">
     </div>
 
-    <button class="main-btn" onclick="generate()">Create QR & App Links</button>
+    <button class="main-btn" onclick="generate()">Generate Payment QR</button>
 
     <div id="outputArea">
         <div id="qrcode"></div>
-        <p style="font-size: 12px; color: #86868b; margin-bottom: 12px;">Choose your UPI app to pay:</p>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px; font-weight: 500;">Pay directly using your preferred app:</p>
         
         <div class="app-grid">
             <a id="linkGPay" href="#" class="app-btn gpay">Google Pay</a>
@@ -73,7 +247,7 @@
     </div>
 </div>
 
-<div id="toast">Link Copied!</div>
+<div id="toast">Link copied to clipboard!</div>
 <textarea id="tempBox" style="position:fixed;top:-999px"></textarea>
 
 <script>
@@ -85,11 +259,14 @@
         const upi = document.getElementById('upi').value.trim();
         const amt = document.getElementById('amt').value.trim();
 
-        if (!name || !upi || !amt) { alert("Please enter Name, UPI ID, and Amount."); return; }
+        if (!name || !upi || !amt) { 
+            alert("Please fill in all fields (Name, UPI ID, and Amount)."); 
+            return; 
+        }
 
-        // Secure 2026 URI Parameters
+        // Generate Transaction Parameters
         const txnId = "T" + Date.now() + Math.floor(Math.random() * 1000);
-        const params = `pa=${upi}&pn=${encodeURIComponent(name)}&am=${amt}&cu=INR&tr=${txnId}&mode=02&orgid=000000`;
+        const params = `pa=${encodeURIComponent(upi)}&pn=${encodeURIComponent(name)}&am=${amt}&cu=INR&tr=${txnId}&mode=02&orgid=000000`;
         
         globalUri = `upi://pay?${params}`;
 
@@ -99,7 +276,7 @@
         document.getElementById('linkPaytm').href = `paytmmp://pay?${params}`;
         document.getElementById('linkAll').href = globalUri;
 
-        // Render QR
+        // Render QR Code
         qrcode.clear();
         qrcode.makeCode(globalUri);
         document.getElementById('outputArea').style.display = 'block';
@@ -108,11 +285,9 @@
     function copyLink() {
         if (!globalUri) return;
         
-        // Modern Clipboard API
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(globalUri).then(() => showToast());
         } else {
-            // Reliable 2026 Fallback
             const t = document.getElementById("tempBox");
             t.value = globalUri;
             t.select();
@@ -123,8 +298,8 @@
 
     function showToast() {
         const toast = document.getElementById("toast");
-        toast.style.display = "block";
-        setTimeout(() => toast.style.display = "none", 2500);
+        toast.classList.add("show");
+        setTimeout(() => toast.classList.remove("show"), 2500);
     }
 </script>
 
