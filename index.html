@@ -42,6 +42,7 @@
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05); 
             border: 1px solid #e2e8f0;
             text-align: center; 
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .brand-header {
@@ -114,12 +115,11 @@
             font-weight: 600; 
             cursor: pointer; 
             margin-top: 8px; 
-            transition: background 0.2s;
+            transition: background 0.2s, transform 0.1s;
         }
 
-        .main-btn:hover {
-            background: var(--primary-hover);
-        }
+        .main-btn:hover { background: var(--primary-hover); }
+        .main-btn:active { transform: scale(0.98); }
         
         #outputArea { 
             display: none; 
@@ -161,16 +161,23 @@
             color: white; 
             font-weight: 600; 
             font-size: 13px; 
-            transition: opacity 0.2s;
+            transition: opacity 0.2s, transform 0.1s;
         }
 
         .app-btn:hover { opacity: 0.9; }
+        .app-btn:active { transform: scale(0.97); }
         
         .gpay { background: #1a73e8; }
         .phonepe { background: #5f259f; }
         .paytm { background: #00baf2; }
         .other { background: #059669; }
         
+        .action-btns {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
         .copy-btn { 
             width: 100%; 
             padding: 12px; 
@@ -185,6 +192,68 @@
         }
 
         .copy-btn:hover { background: #e2e8f0; }
+
+        /* Glossy 3D Success Button */
+        .success-verify-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #34d399 0%, #059669 50%, #047857 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.4), 
+                        0 6px 15px rgba(5, 150, 105, 0.4),
+                        0 2px 4px rgba(0, 0, 0, 0.1);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .success-verify-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: inset 0 2px 5px rgba(255, 255, 255, 0.5), 
+                        0 8px 20px rgba(5, 150, 105, 0.5),
+                        0 3px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .success-verify-btn:active {
+            transform: translateY(1px);
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2), 
+                        0 2px 5px rgba(5, 150, 105, 0.3);
+        }
+
+        /* Success State View inside card */
+        .success-state {
+            display: none;
+            text-align: center;
+            animation: scaleUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes scaleUp {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .success-icon-wrapper {
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, #34d399 0%, #059669 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px auto;
+            box-shadow: inset 0 3px 6px rgba(255, 255, 255, 0.5), 
+                        0 10px 20px rgba(5, 150, 105, 0.4);
+            color: white;
+            font-size: 32px;
+        }
 
         #toast { 
             position: fixed; 
@@ -209,29 +278,33 @@
 </head>
 <body>
 
-<div class="payment-card">
+<div class="payment-card" id="mainCard">
     <div class="secure-badge">🔒 100% Secure UPI Encryption</div>
     <div class="brand-header">
         <h2>Smart UPI Pay</h2>
     </div>
     
-    <div class="input-box">
-        <label>Payee Name</label>
-        <input type="text" id="name" placeholder="e.g. John Doe">
-    </div>
-    
-    <div class="input-box">
-        <label>UPI ID (VPA)</label>
-        <input type="text" id="upi" placeholder="e.g. username@oksbi">
-    </div>
-    
-    <div class="input-box">
-        <label>Amount (₹)</label>
-        <input type="number" id="amt" placeholder="0.00" step="0.01">
+    <!-- Input Form Section -->
+    <div id="formSection">
+        <div class="input-box">
+            <label>Payee Name</label>
+            <input type="text" id="name" placeholder="e.g. Aditya Agarwal" value="Aditya Agarwal">
+        </div>
+        
+        <div class="input-box">
+            <label>UPI ID (VPA)</label>
+            <input type="text" id="upi" placeholder="e.g. username@oksbi" value="adityaagarwal17092004@ptaxis">
+        </div>
+        
+        <div class="input-box">
+            <label>Amount (₹)</label>
+            <input type="number" id="amt" placeholder="0.00" step="0.01" value="10">
+        </div>
+
+        <button class="main-btn" onclick="generate()">Generate Payment QR</button>
     </div>
 
-    <button class="main-btn" onclick="generate()">Generate Payment QR</button>
-
+    <!-- Dynamic QR & Payment Links Area -->
     <div id="outputArea">
         <div id="qrcode"></div>
         <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px; font-weight: 500;">Pay directly using your preferred app:</p>
@@ -243,7 +316,20 @@
             <a id="linkAll" href="#" class="app-btn other">Other Apps</a>
         </div>
         
-        <button class="copy-btn" onclick="copyLink()">Copy Payment Link</button>
+        <div class="action-btns">
+            <button class="success-verify-btn" onclick="triggerSuccess()">
+                <span>✨ Payment Received</span>
+            </button>
+            <button class="copy-btn" onclick="copyLink()">Copy Payment Link</button>
+        </div>
+    </div>
+
+    <!-- Success 3D Glossy Screen State -->
+    <div id="successState" class="success-state">
+        <div class="success-icon-wrapper">✓</div>
+        <h3 style="font-size: 22px; font-weight: 700; color: #065f46; margin-bottom: 8px;">Payment Successful!</h3>
+        <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 24px;" id="successDesc">The transaction has been successfully completed and confirmed.</p>
+        <button class="main-btn" onclick="resetForm()">Create New Payment</button>
     </div>
 </div>
 
@@ -253,6 +339,11 @@
 <script>
     let qrcode = new QRCode(document.getElementById("qrcode"), { width: 160, height: 160, correctLevel: QRCode.CorrectLevel.H });
     let globalUri = "";
+
+    // Automatically trigger generation on load if default fields are populated
+    window.onload = function() {
+        generate();
+    };
 
     function generate() {
         const name = document.getElementById('name').value.trim();
@@ -264,7 +355,7 @@
             return; 
         }
 
-        // Generate Transaction Parameters
+        // Generate Dynamic Transaction Parameters
         const txnId = "T" + Date.now() + Math.floor(Math.random() * 1000);
         const params = `pa=${encodeURIComponent(upi)}&pn=${encodeURIComponent(name)}&am=${amt}&cu=INR&tr=${txnId}&mode=02&orgid=000000`;
         
@@ -276,10 +367,35 @@
         document.getElementById('linkPaytm').href = `paytmmp://pay?${params}`;
         document.getElementById('linkAll').href = globalUri;
 
-        // Render QR Code
+        // Render QR Code dynamically
         qrcode.clear();
         qrcode.makeCode(globalUri);
+        
+        // Show output area smoothly
         document.getElementById('outputArea').style.display = 'block';
+    }
+
+    function triggerSuccess() {
+        const amtVal = document.getElementById('amt').value;
+        const nameVal = document.getElementById('name').value;
+        
+        document.getElementById('successDesc').innerText = `Successfully received ₹${amtVal} from payment request for ${nameVal}.`;
+        
+        // Hide interactive elements and display 3D glossy success card state
+        document.getElementById('formSection').style.display = 'none';
+        document.getElementById('outputArea').style.display = 'none';
+        document.querySelector('.secure-badge').style.display = 'none';
+        document.querySelector('.brand-header').style.display = 'none';
+        
+        document.getElementById('successState').style.display = 'block';
+    }
+
+    function resetForm() {
+        document.getElementById('successState').style.display = 'none';
+        document.getElementById('formSection').style.display = 'block';
+        document.querySelector('.secure-badge').style.display = 'inline-flex';
+        document.querySelector('.brand-header').style.display = 'flex';
+        document.getElementById('outputArea').style.display = 'none';
     }
 
     function copyLink() {
